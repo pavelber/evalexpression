@@ -1,0 +1,64 @@
+buildscript {
+    ext.kotlin_version = '1.2.31'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+group 'com.compugex'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    // https://mvnrepository.com/artifact/com.fathzer/javaluator
+    // No support of mix of double and boolean a>b, may be extended
+    compile group: 'com.fathzer', name: 'javaluator', version: '3.0.0' //http://javaluator.sourceforge.net/en/home/
+
+    // https://mvnrepository.com/artifact/org.mariuszgromada.math/MathParser.org-mXparser
+    // Too slow!!!
+
+    compile group: 'org.mariuszgromada.math', name: 'MathParser.org-mXparser', version: '4.1.1' //http://mathparser.org/
+
+    compile 'com.udojava:EvalEx:2.0' //https://github.com/uklimaschewski/EvalEx
+
+    // https://mvnrepository.com/artifact/net.objecthunter/exp4j
+    // no support for booleans, may be extended
+    compile group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'// https://lallafa.objecthunter.net/exp4j/
+
+
+    //http://tech.dolhub.com/Code/MathEval - no support for boolean
+
+
+    // https://mvnrepository.com/artifact/com.innowhere/relproxy
+    // not working :(
+    compile group: 'com.innowhere', name: 'relproxy', version: '0.8.8'
+
+    // https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.0-rc-1'
+
+
+
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

@@ -1,39 +1,36 @@
 package com.compugen
 
-import com.innowhere.relproxy.jproxy.JProxy
-import com.innowhere.relproxy.jproxy.JProxyScriptEngine
-import com.innowhere.relproxy.jproxy.JProxyScriptEngineFactory
-import groovy.lang.Binding
-import groovy.lang.GroovyShell
-import groovy.util.Eval
+import org.apache.commons.jexl3.JexlBuilder
+import org.apache.commons.jexl3.MapContext
 import org.mariuszgromada.math.mxparser.Argument
 import java.math.BigDecimal
+import java.util.*
 import javax.script.ScriptContext
-import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
-import java.util.HashMap
-
-
 
 
 object TestExpr {
 
     val expr = "a>10 && b<c+5 && (a+b)<c*4"
-    val sexpr = "return a>10 && b<c+5 && (a+b)<c*4;"
 
     val N = 10
     val e = ScriptEngineManager().getEngineByName("js")
     val mxExpr = org.mariuszgromada.math.mxparser.Expression(expr)
     val evalExpression = com.udojava.evalex.Expression(expr)
+    val template = groovy.text.GStringTemplateEngine().createTemplate(expr)
 
+    val jexl = JexlBuilder().create()
+
+    val jexlExp = jexl.createExpression(expr)
 
     @JvmStatic
     fun main(args: Array<String>) {
 
         evaluateMany("js", TestExpr::jsEvaluate)
-        evaluateMany("mxParser", TestExpr::mxParserEvaluate)
+        //   evaluateMany("mxParser", TestExpr::mxParserEvaluate)
         evaluateMany("evalex", TestExpr::evalexEvaluate)
         evaluateMany("groovy", TestExpr::groovyEvaluate)
+        evaluateMany("jexl", TestExpr::jexlEvaluate)
     }
 
     fun evaluate(a: Double, b: Double, c: Double, func: (Double, Double, Double) -> Boolean): Boolean {
@@ -62,7 +59,6 @@ object TestExpr {
     }
 
 
-
     fun mxParserEvaluate(a: Double, b: Double, c: Double): Boolean {
         val v1 = Argument("a = $a")
         val v2 = Argument("b = $b")
@@ -78,14 +74,23 @@ object TestExpr {
     }
 
     fun groovyEvaluate(a: Double, b: Double, c: Double): Boolean {
-        val binding = Binding()
-        binding.setVariable("a", a)
-        binding.setVariable("b", b)
-        binding.setVariable("c", c)
+        val binding = HashMap<String, Double>()
+        binding.put("a", a)
+        binding.put("b", b)
+        binding.put("c", c)
 
+        val template = template.make(binding)
+        return template.toString().toBoolean()
+    }
 
-        val sh = GroovyShell(binding)
-        return sh.evaluate(expr) as Boolean
+    fun jexlEvaluate(a: Double, b: Double, c: Double): Boolean {
+
+        val jc = MapContext()
+        jc.set("a", a)
+        jc.set("b", b)
+        jc.set("c", c)
+
+        return jexlExp.evaluate(jc) as Boolean
     }
 
 
